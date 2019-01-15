@@ -1,2 +1,2 @@
-# medium
-Codes from the blog
+Codes from the Medium blog [@busybus](https://medium.com/@busybus).
+
