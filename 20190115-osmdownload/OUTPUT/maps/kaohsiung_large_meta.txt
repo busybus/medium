@@ -1,0 +1,13 @@
+{
+  "Region": "kaohsiung_large",
+  "File location": "OUTPUT/maps/UV/kaohsiung_large.osm",
+  "Bounding box": [
+    119.9377,
+    22.1645,
+    120.8084,
+    23.3347
+  ],
+  "Source": "https://overpass-api.de/api/map?bbox=119.9377,22.1645,120.8084,23.3347",
+  "Retrieval (UTC)": "2019-01-15T04:38:46.343253",
+  "Script": "# RA, 2019-01-15\n# Download an OpenStreetMaps file based on a lat-lon bounding box\n\n# License: CC0 -- \"No rights reserved\"\n\n\n# IMPORTS:\n\nimport os\nimport json\nimport inspect\nimport traceback\nimport datetime as dt\nimport urllib.request\n\n# INPUT FILES:\n\npass\n\n# OUTPUT FILES:\n\nOFILE = {\n    # Put the downloaded *.osm files here\n    'OSM': \"OUTPUT/maps/UV/{region}.osm\",\n\n    # Record meta-info here\n    'OSM-meta': \"OUTPUT/maps/{region}_meta.txt\",\n}\n\nfor fn in OFILE.values():\n    os.makedirs(os.path.dirname(fn).format(), exist_ok=True)\n\n# PARAMETERS:\n\nPARAM = {\n    # Bounding box to download [left, bottom, right, top]\n    # https://wiki.openstreetmap.org/wiki/API_v0.6\n    'regions': {\n        'kaohsiung_small': [120.2206, 22.4827, 120.4308, 22.7578],\n        'kaohsiung_large': [119.9377, 22.1645, 120.8084, 23.3347],\n    },\n\n    # Download URL\n    'API-URL': \"https://overpass-api.de/api/map?bbox={bbox}\",\n}\n\n# AUXILIARY:\n\n# https://stackoverflow.com/questions/34491808/how-to-get-the-current-scripts-code-in-python\nTHIS = inspect.getsource(inspect.getmodule(inspect.currentframe()))\n\n\n# Log which files are opened\ndef logged_open(filename, mode='r', *argv, **kwargs):\n    from builtins import open as builtin_open\n    print(\"({}):\\t{}\".format(mode, filename))\n    return builtin_open(filename, mode, *argv, **kwargs)\n\nopen = logged_open\n\n\n# SLAVES:\n\ndef download(region):\n    bbox = PARAM['regions'][region]\n\n    url = PARAM['API-URL'].format(bbox=\"{0},{1},{2},{3}\".format(*bbox))\n    out = OFILE['OSM'].format(region=region)\n\n    meta = {\n        'Region': region,\n        'File location': out,\n        'Bounding box': bbox,\n        'Source': url,\n        'Retrieval (UTC)': dt.datetime.utcnow().isoformat(),\n        'Script': THIS,\n    }\n\n    with urllib.request.urlopen(url) as response:\n        with logged_open(out, 'wb') as fd:\n            fd.write(response.read())\n\n    with logged_open(OFILE['OSM-meta'].format(region=region), 'w') as fd:\n        json.dump(meta, fd, indent=2)\n\n\n# MASTER:\n\ndef download_all():\n    for region in PARAM['regions']:\n        try:\n            print(\"Processing '{}'...\".format(region))\n            download(region)\n            print(\"OK!\")\n        except:\n            print(\"FAILED.\", traceback.format_exc())\n\n\n# ENTRY:\n\nif __name__ == \"__main__\":\n    download_all()\n"
+}
