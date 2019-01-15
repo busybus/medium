@@ -1,5 +1,5 @@
 # RA, 2019-01-15
-# Download an OpenStreetMaps file based on a lat-lon bounding box
+# Download an OpenStreetMap file based on a lat-lon bounding box
 
 # License: CC0 -- "No rights reserved"
 
