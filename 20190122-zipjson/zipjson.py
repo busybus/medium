@@ -67,6 +67,10 @@ class TestJsonZipMethods(unittest.TestCase):
         for item in self.items:
             self.assertEqual(item, json_unzip(json_zip(item)))
 
+    def test_json_zipunzip_chinese(self):
+        item = {'hello': "你好"}
+        self.assertEqual(item, json_unzip(json_zip(item)))
+
     def test_json_unzip_insist_failure(self):
         for item in self.items:
             with self.assertRaises(RuntimeError):
